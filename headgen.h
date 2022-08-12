@@ -1,6 +1,5 @@
 #include "nctypes.h"
 
-
 class elfFile
 {
 public:
@@ -12,13 +11,7 @@ public:
 	enum linkness{staticLink, dynamicLink = 3};
 void elfgen(u8 *p, u32 len, u32 fileType, u32 machineType, u32 osABI, u32 endianness, u32 phType){
 	u32 c=0, *ptr;
-
 	ptr=(u32*)p;
-	
-	while(c<30){
-		*(ptr+c)=0;
-		c+=1;
-	}
 	
 	struct elf64
 	{
@@ -47,10 +40,11 @@ void elfgen(u8 *p, u32 len, u32 fileType, u32 machineType, u32 osABI, u32 endian
 		u32 phType;
 		u32 phFlags;
 		u64 phSegOffset;
-		u64 phVaOfSegMem;
-		u64 phPAddrOfSegMem;
+		u64 phVA;
+		u64 phPA;
 		u64 phFileSize;
 		u64 phMemSize;
+		u64 alignment;//0,1 - no alignment. Alignment = 2^n
 		
 	};elf64ph *elfph;
 	
@@ -79,9 +73,34 @@ void elfgen(u8 *p, u32 len, u32 fileType, u32 machineType, u32 osABI, u32 endian
 	elfph->phType = phType;
 	elfph->phFlags = 5;
 	elfph->phSegOffset = 0;
-	elfph->phVaOfSegMem = 0x00400000;
-	elfph->phPAddrOfSegMem = 0x00400000;
-	elfph->phFileSize = len + elf->entryPoint - elfph->phVaOfSegMem;
-	elfph->phMemSize = len + elf->entryPoint - elfph->phVaOfSegMem;
+	elfph->phVA = 0x00400000;
+	elfph->phPA = 0x00400000;
+	elfph->phFileSize = len + elf->entryPoint - elfph->phVA;
+	elfph->phMemSize = len + elf->entryPoint - elfph->phPA;
+	elfph->alignment = 1;
 	}
+};
+
+
+class pe_gen
+{
+public:
+    void init(u32 len, u8 *p){
+    	PE *pe;
+    	pe=(PE*)p;
+ 
+	    pe[0]={0x5a4d,0xccccffff};
+	    pe[1].signature=0x5a4c;
+	    pe[1].peSecOffset=0x5a4c;
+ 
+	    pe+=1;
+	    (pe+1)->signature=0x5a4c;
+	    (pe+1)->peSecOffset=0x5a4c;
+	}
+private:
+	struct PE{
+        u16 signature;
+        //u8 dosStub[0x3a];
+        u32 peSecOffset;
+    };
 };
