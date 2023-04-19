@@ -82,13 +82,15 @@ class peFile
 public:
 	enum machineType{x64=0x8664, x86=0x14c, arm_le=0x1c0, armThumb2_le=0x1c4, arm64_le=0xaa64, 
 		riscv32=0x5032, riscv64=0x5064, efiByteCode=0xebc};
+	enum flags{relocsStripped=1, executableImage=2, largeAddressMode=0x20, machine32=0x100, 
+		fileSystem=0x1000, fileDLL=0x2000};
 	enum opHsignature{pe32=0x10b,pe32plus=0x20b,rom=0x107};
-	enum subSystem{ssUnknown,ssDeviceDriver,ssGui,ssChar,ssEfiApp=10,ssEfiBoot,ssEfiDriver,ssEfiROM};
-	enum imgFlags{imgRelocsStripped=1,imgExecutable=2,imgLineNumsStripped=4,imgLocalSymsStripped=8,
-		imgAggresiveWsTrim=0x10,imgLargeAddr=0x20};
-	enum secFlags{secCode=0x20,secX=0x20000000,secR=0x40000000,secW=0x80000000};
 	enum dllFlags{};
-	
+	enum subSystem{unknown,deviceDriver,gui,charSubSys,efiApp=10,efiBoot,efiDriver,efiROM};
+	enum imageFlags{imageRelocsStripped=1,imageExecutable=2,imageLineNumsStripped=4,imageLocalSymsStripped=8,
+		imageAggresiveWsTrim=0x10,imageLargeAddr=0x20};
+	enum secFlags{containsCode=0x20,executable=0x20000000,readable=0x40000000,writeable=0x80000000};
+
 	struct mzH{
         u16 signature;
         u8 dosStub[0x3a];
